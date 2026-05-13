@@ -129,6 +129,7 @@ port: port.value
 };
 
 shipData.push(ship);
+sendToGoogleSheets(ship);
 
 localStorage.setItem(
 'shipData',
@@ -329,6 +330,24 @@ table.innerHTML += `
 }
 
 renderDashboard();
+async function sendToGoogleSheets(ship){
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqOtQDArNHfYgo0AtY3227KwWleoXDr8HGJneJmJqIl5rsNjtDxu2NYtdFZQ-ewf2jxw/exec";
+
+try{
+
+await fetch(SCRIPT_URL,{
+method:'POST',
+body: JSON.stringify(ship)
+});
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
 
 </script>
 
