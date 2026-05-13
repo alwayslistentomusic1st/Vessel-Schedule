@@ -129,6 +129,7 @@ port: port.value
 };
 
 shipData.push(ship);
+
 sendToGoogleSheets(ship);
 
 localStorage.setItem(
@@ -338,6 +339,10 @@ try{
 
 await fetch(SCRIPT_URL,{
 method:'POST',
+mode:'no-cors',
+headers:{
+'Content-Type':'application/json'
+},
 body: JSON.stringify(ship)
 });
 
