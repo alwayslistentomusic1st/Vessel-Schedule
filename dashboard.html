@@ -333,15 +333,19 @@ table.innerHTML += `
 renderDashboard();
 async function sendToGoogleSheets(ship){
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqOtQDArNHfYgo0AtY3227KwWleoXDr8HGJneJmJqIl5rsNjtDxu2NYtdFZQ-ewf2jxw/exec";
+const FORM_URL = "ใส่ลิงก์ Google Form ตรงนี้";
 
-fetch(SCRIPT_URL,{
-method:'POST',
-mode:'no-cors',
-headers:{
-'Content-Type':'application/json'
-},
-body: JSON.stringify(ship)
+const formData = new FormData();
+
+formData.append("entry.XXXXXXXXX", ship.name);
+formData.append("entry.XXXXXXXXX", ship.arrival);
+formData.append("entry.XXXXXXXXX", ship.departure);
+formData.append("entry.XXXXXXXXX", ship.port);
+
+fetch(FORM_URL,{
+method:"POST",
+mode:"no-cors",
+body: formData
 });
 
 }
