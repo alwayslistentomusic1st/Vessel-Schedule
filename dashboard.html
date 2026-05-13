@@ -340,8 +340,10 @@ const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfzEZz8qgq5VBuFCAlKZj
 const formData = new FormData();
 
 formData.append("entry.1808801054", ship.name);
-formData.append("entry.1019847148", ship.arrival);
-formData.append("entry.1663534287", ship.departure);
+formData.append("entry.1019847148", new Date(ship.arrival).toLocaleDateString('en-US')
+);
+formData.append("entry.1663534287", new Date(ship.departure).toLocaleDateString('en-US')
+);
 formData.append("entry.263534956", ship.port);
 
 console.log(ship);
