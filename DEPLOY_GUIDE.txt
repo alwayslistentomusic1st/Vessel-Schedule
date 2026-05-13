@@ -1,0 +1,41 @@
+
+# วิธี Deploy เว็บออนไลน์
+
+## 1. Upload ขึ้น GitHub
+สร้าง repository แล้วอัปโหลดไฟล์ทั้งหมด
+
+## 2. Deploy ฟรีด้วย Vercel
+เว็บไซต์:
+https://vercel.com
+
+กด:
+- Add New Project
+- Import GitHub Repository
+- Deploy
+
+## 3. Google Sheets Integration
+
+### Step 1
+สร้าง Google Sheet
+
+ชื่อ sheet:
+Ships
+
+### Step 2
+เปิด Extensions > Apps Script
+
+วางไฟล์ apps-script.js
+
+### Step 3
+Deploy > New Deployment > Web App
+
+ตั้งค่า:
+- Anyone can access
+
+### Step 4
+Copy URL แล้วนำไปใส่ใน dashboard.html
+
+แทน:
+PASTE_YOUR_GOOGLE_SCRIPT_URL
+
+เสร็จแล้วระบบจะบันทึกลง Google Sheets อัตโนมัติ

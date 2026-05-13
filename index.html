@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ship Logistics System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100">
+
+<div class="min-h-screen flex items-center justify-center">
+  <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md">
+
+    <h1 class="text-3xl font-bold text-blue-900 mb-2">
+      Ship Logistics
+    </h1>
+
+    <p class="text-gray-500 mb-6">
+      ระบบเรือเข้า-ออกบริษัท
+    </p>
+
+    <div class="space-y-4">
+      <input id="username" placeholder="Username"
+        class="w-full border p-3 rounded-xl">
+
+      <input id="password" type="password" placeholder="Password"
+        class="w-full border p-3 rounded-xl">
+
+      <button onclick="register()"
+        class="w-full bg-blue-700 text-white p-3 rounded-xl font-bold">
+        สมัครสมาชิก
+      </button>
+
+      <button onclick="login()"
+        class="w-full bg-slate-800 text-white p-3 rounded-xl font-bold">
+        เข้าสู่ระบบ
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const USERS_KEY = "ship_users";
+
+function register(){
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  if(!username || !password){
+    alert('กรอกข้อมูลให้ครบ');
+    return;
+  }
+
+  let users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+
+  const exists = users.find(u => u.username === username);
+
+  if(exists){
+    alert('Username นี้ถูกใช้แล้ว');
+    return;
+  }
+
+  users.push({username, password});
+
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+  alert('สมัครสมาชิกสำเร็จ');
+}
+
+function login(){
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  let users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+
+  const found = users.find(
+    u => u.username === username && u.password === password
+  );
+
+  if(found){
+    localStorage.setItem('loggedInUser', username);
+    window.location.href = 'dashboard.html';
+  }else{
+    alert('Username หรือ Password ไม่ถูกต้อง');
+  }
+}
+</script>
+
+</body>
+</html>
