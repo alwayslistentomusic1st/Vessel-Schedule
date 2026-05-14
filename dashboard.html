@@ -223,6 +223,33 @@ Print
 Monthly Ship Summary
 </h2>
 <canvas id="monthlyChart"></canvas>
+
+<div class="mt-10 overflow-auto">
+
+<table class="w-full text-sm">
+
+<thead>
+
+<tr class="bg-slate-100">
+
+<th class="p-4 text-left">
+Month
+</th>
+
+<th class="p-4 text-left">
+Total Ships
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="monthlySummaryTable"></tbody>
+
+</table>
+
+</div>
+  
 </div>
 
 </div>
@@ -430,7 +457,7 @@ return `${day}/${month}/${year}`;
 
 document
 .getElementById('shipForm')
-.addEventListener('submit',function(e){
+.addEventListener('submit',async function(e){
 
 e.preventDefault();
 
@@ -493,6 +520,7 @@ renderTable();
 renderForecast();
 updateKPI();
 renderMonthlyChart();
+renderMonthlySummary();
 populateMonthFilter();
 checkWeeklyShips();
 
@@ -627,6 +655,57 @@ document.getElementById('totalShips')
 }
 
 function renderMonthlyChart(){
+
+function renderMonthlySummary(){
+
+const table =
+document.getElementById(
+'monthlySummaryTable'
+);
+
+if(!table) return;
+
+table.innerHTML='';
+
+const monthCount = {};
+
+shipData.forEach(ship=>{
+
+const d =
+new Date(ship.arrival);
+
+const month =
+d.toLocaleString(
+'th-TH',
+{month:'long'}
+);
+
+monthCount[month] =
+(monthCount[month] || 0) + 1;
+
+});
+
+for(const month in monthCount){
+
+table.innerHTML += `
+
+<tr class="border-b">
+
+<td class="p-4 font-semibold">
+${month}
+</td>
+
+<td class="p-4">
+${monthCount[month]}
+</td>
+
+</tr>
+
+`;
+
+}
+
+}
 
 const monthCount = {};
 
@@ -882,39 +961,33 @@ searchShip.addEventListener('input',renderTable);
 filterPort.addEventListener('input',renderTable);
 filterMonth.addEventListener('change',renderTable);
 
-/*
-GOOGLE FORM INTEGRATION
-
-ใส่ FORM_URL และ entry IDs
-*/
-
 async function sendToGoogleSheets(ship){
 
 const FORM_URL =
-"https://docs.google.com/forms/d/e/FORM_ID/formResponse";
+"https://docs.google.com/forms/d/e/1FAIpQLSfzEZz8qgq5VBuFCAlKZjwiboaIU5PVnb0DUA_6mO8WQQYBuw/formResponse";
 
 const formData =
 new FormData();
 
 formData.append(
-"entry.xxxxx",
+"entry.1808801054",
 ship.name
 );
 
 formData.append(
-"entry.xxxxx",
+"entry.1019847148",
 new Date(ship.arrival)
 .toLocaleDateString('en-US')
 );
 
 formData.append(
-"entry.xxxxx",
+"entry.1663534287",
 new Date(ship.departure)
 .toLocaleDateString('en-US')
 );
 
 formData.append(
-"entry.xxxxx",
+"entry.263534956",
 ship.port
 );
 
