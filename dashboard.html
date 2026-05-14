@@ -1,22 +1,31 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบข้อมูลเรือเข้า-ออก</title>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Ships Dashboard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
 
 <style>
+
 body{
 background:#f1f5f9;
 font-family:sans-serif;
+overflow-x:hidden;
 }
 
 .sidebar{
@@ -25,17 +34,35 @@ color:white;
 min-height:100vh;
 }
 
-.card{
-background:white;
-border-radius:22px;
-padding:22px;
-box-shadow:0 10px 30px rgba(0,0,0,.06);
+.menu-btn{
+width:100%;
+padding:16px;
+border-radius:16px;
+text-align:left;
+transition:.25s;
+font-weight:600;
 }
 
-.kpi{
-display:flex;
-justify-content:space-between;
-align-items:center;
+.menu-btn:hover{
+background:#1e293b;
+}
+
+.menu-active{
+background:#1e293b;
+}
+
+.card{
+background:white;
+border-radius:24px;
+padding:24px;
+box-shadow:0 10px 30px rgba(0,0,0,.05);
+}
+
+.fc-event{
+border:none !important;
+padding:4px;
+font-size:12px;
+font-weight:700;
 }
 
 .badge-real{
@@ -58,32 +85,27 @@ font-weight:700;
 
 .table-row:hover{
 background:#f8fafc;
-cursor:pointer;
 }
 
-.notify{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#0f172a;
-color:white;
-padding:16px 20px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,.2);
-z-index:999;
+.fade{
+animation:fade .25s ease;
 }
 
-.fc-event{
-border:none !important;
-padding:4px;
-font-size:12px;
-font-weight:700;
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
 .modal{
 position:fixed;
 inset:0;
-background:rgba(0,0,0,.5);
+background:rgba(0,0,0,.45);
 display:none;
 align-items:center;
 justify-content:center;
@@ -93,196 +115,296 @@ z-index:9999;
 .modal-box{
 background:white;
 padding:30px;
-border-radius:22px;
+border-radius:24px;
 width:95%;
-max-width:420px;
+max-width:450px;
 }
+
+input,select{
+outline:none;
+}
+
+.print-only{
+display:none;
+}
+
+@media print{
+
+body *{
+visibility:hidden;
+}
+
+#printSection,
+#printSection *{
+visibility:visible;
+}
+
+#printSection{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+}
+
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="grid lg:grid-cols-[260px_1fr]">
 
+<!-- SIDEBAR -->
+
 <div class="sidebar p-6">
 
 <h1 class="text-3xl font-bold mb-2">
-🚢 ระบบข้อมูลเรือเข้า-ออก
+🚢 Ships
 </h1>
 
 <p class="text-slate-400 mb-10">
-Corporate Ship Management System
+Corporate Ship Dashboard
 </p>
 
-<div class="space-y-4">
+<div class="space-y-3">
 
-<button onclick="showSection('dashboardSection')"
-class="w-full text-left bg-slate-800 p-4 rounded-xl">
+<button
+onclick="showSection('dashboardSection',this)"
+class="menu-btn menu-active">
+
 <i class="fa-solid fa-chart-line mr-2"></i>
 Dashboard
+
 </button>
 
-<button onclick="showSection('calendarSection')"
-class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+<button
+onclick="showSection('calendarSection',this)"
+class="menu-btn">
+
 <i class="fa-solid fa-calendar mr-2"></i>
 Calendar
+
 </button>
 
-<button onclick="showSection('reportsSection')"
-class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+<button
+onclick="showSection('forecastSection',this)"
+class="menu-btn">
+
+<i class="fa-solid fa-chart-simple mr-2"></i>
+Forecast
+
+</button>
+
+<button
+onclick="showSection('reportsSection',this)"
+class="menu-btn">
+
 <i class="fa-solid fa-table mr-2"></i>
 Reports
+
 </button>
 
-<button onclick="showSection('forecastSection')"
-class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
-<i class="fa-solid fa-ship mr-2"></i>
-Forecast
-</button>
+<button
+onclick="showSection('settingsSection',this)"
+class="menu-btn">
 
-<button onclick="openPasswordModal()"
-class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
-<i class="fa-solid fa-lock mr-2"></i>
+<i class="fa-solid fa-gear mr-2"></i>
 Settings
+
 </button>
 
 </div>
 
 </div>
 
-<div>
-
-<div class="bg-white p-6 shadow-sm flex justify-between items-center">
+<!-- MAIN -->
 
 <div>
-<h2 class="text-3xl font-bold text-slate-900">
-ระบบข้อมูลเรือเข้า-ออก
+
+<!-- TOPBAR -->
+
+<div class="bg-white p-6 flex justify-between items-center shadow-sm">
+
+<div>
+
+<h2 class="text-3xl font-bold">
+Ships Dashboard
 </h2>
 
 <p class="text-slate-500">
-Corporate Logistics Dashboard
+Ship Logistics Management System
 </p>
+
 </div>
 
 <div class="flex gap-3">
 
-<button onclick="exportExcel()"
-class="bg-green-600 text-white px-5 py-3 rounded-xl">
+<button
+onclick="exportExcel()"
+class="bg-green-600 text-white px-5 py-3 rounded-2xl font-semibold">
+
 Export Excel
+
 </button>
 
-<button onclick="window.print()"
-class="bg-slate-800 text-white px-5 py-3 rounded-xl">
-Print
+<button
+onclick="printReports()"
+class="bg-slate-900 text-white px-5 py-3 rounded-2xl font-semibold">
+
+Print Reports
+
 </button>
 
 </div>
 
 </div>
 
-<div id="dashboardSection">
+<!-- DASHBOARD -->
+
+<div id="dashboardSection" class="fade">
 
 <div class="grid lg:grid-cols-4 gap-6 p-6">
 
-<div class="card kpi">
+<div class="card">
+
+<div class="flex justify-between items-center">
+
 <div>
-<p class="text-slate-500">Total Ships</p>
-<h2 id="totalShips" class="text-4xl font-bold">0</h2>
-</div>
-<i class="fa-solid fa-ship text-4xl text-blue-900"></i>
+
+<p class="text-slate-500">
+Total Ships
+</p>
+
+<h2 id="totalShips"
+class="text-4xl font-bold mt-2">
+0
+</h2>
+
 </div>
 
-<div class="card kpi">
+<i class="fa-solid fa-ship text-5xl text-blue-900"></i>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="flex justify-between items-center">
+
 <div>
-<p class="text-slate-500">This Month</p>
-<h2 id="monthShips" class="text-4xl font-bold">0</h2>
-</div>
-<i class="fa-solid fa-calendar text-4xl text-blue-900"></i>
+
+<p class="text-slate-500">
+This Month
+</p>
+
+<h2 id="thisMonthShips"
+class="text-4xl font-bold mt-2">
+0
+</h2>
+
 </div>
 
-<div class="card kpi">
+<i class="fa-solid fa-calendar text-5xl text-blue-900"></i>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="flex justify-between items-center">
+
 <div>
-<p class="text-slate-500">Most Frequent Ship</p>
-<h2 id="topShip" class="text-2xl font-bold">-</h2>
-</div>
-<i class="fa-solid fa-star text-4xl text-blue-900"></i>
+
+<p class="text-slate-500">
+Most Busy Month
+</p>
+
+<h2 id="bestMonth"
+class="text-3xl font-bold mt-2">
+-
+</h2>
+
 </div>
 
-<div class="card kpi">
+<i class="fa-solid fa-chart-column text-5xl text-blue-900"></i>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="flex justify-between items-center">
+
 <div>
-<p class="text-slate-500">Most Busy Month</p>
-<h2 id="bestMonth" class="text-2xl font-bold">-</h2>
+
+<p class="text-slate-500">
+Most Frequent Ship
+</p>
+
+<h2 id="topShip"
+class="text-2xl font-bold mt-2">
+-
+</h2>
+
 </div>
-<i class="fa-solid fa-chart-line text-4xl text-blue-900"></i>
+
+<i class="fa-solid fa-star text-5xl text-blue-900"></i>
+
+</div>
+
 </div>
 
 </div>
 
-<div class="card mx-6 mb-6">
+<div class="px-6 pb-6">
+
+<div class="card">
+
 <h2 class="text-2xl font-bold mb-6">
 Monthly Ship Summary
 </h2>
-<canvas id="monthlyChart"></canvas>
 
-<div class="mt-10 overflow-auto">
+<canvas id="monthlyChart" height="100"></canvas>
 
-<table class="w-full text-sm">
+<div class="overflow-auto mt-10">
 
-<thead>
-
-<tr class="bg-slate-100">
-
-<th class="p-4 text-left">
-Month
-</th>
-
-<th class="p-4 text-left">
-Total Ships
-</th>
-
-</tr>
-
-</thead>
-
-<tbody id="monthlySummaryTable"></tbody>
-
-</table>
-
-</div>
-
-<div class="mt-10 overflow-auto">
-
-<table class="w-full text-sm">
+<table class="w-full">
 
 <thead>
 
 <tr class="bg-slate-100">
 
-<th class="p-4 text-left">
-Month
-</th>
-
-<th class="p-4 text-left">
-Total Ships
-</th>
+<th class="p-4 text-left">Month</th>
+<th class="p-4 text-left">Total Ships</th>
 
 </tr>
 
 </thead>
 
-<tbody id="monthlySummaryTable"></tbody>
+<tbody id="monthlyTable"></tbody>
 
 </table>
 
 </div>
-  
+
+</div>
+
 </div>
 
 </div>
 
-<div id="calendarSection" style="display:none;" class="px-6 pb-6">
+<!-- CALENDAR -->
 
-<div class="grid lg:grid-cols-3 gap-6">
+<div id="calendarSection"
+style="display:none"
+class="fade">
+
+<div class="grid lg:grid-cols-3 gap-6 p-6">
 
 <div class="card">
 
@@ -292,31 +414,52 @@ Add Ship Schedule
 
 <form id="shipForm" class="space-y-4">
 
-<input required id="shipName"
+<input
+required
+id="shipName"
 placeholder="Ship Name"
-class="w-full border p-4 rounded-xl"/>
+class="w-full border p-4 rounded-2xl"
+/>
 
-<input required type="date" id="arrivalDate"
-class="w-full border p-4 rounded-xl"/>
+<input
+required
+type="date"
+id="arrivalDate"
+class="w-full border p-4 rounded-2xl"
+/>
 
-<input required type="date" id="departureDate"
-class="w-full border p-4 rounded-xl"/>
+<input
+required
+type="date"
+id="departureDate"
+class="w-full border p-4 rounded-2xl"
+/>
 
-<input id="port"
+<input
+id="port"
 placeholder="Port"
-class="w-full border p-4 rounded-xl"/>
+class="w-full border p-4 rounded-2xl"
+/>
 
-<select id="shipStatus"
-class="w-full border p-4 rounded-xl">
+<select
+id="shipStatus"
+class="w-full border p-4 rounded-2xl">
 
-<option value="real">Actual Arrival</option>
-<option value="expected">Expected Arrival</option>
+<option value="real">
+Actual Arrival
+</option>
+
+<option value="expected">
+Expected Arrival
+</option>
 
 </select>
 
-<button type="submit"
-class="w-full bg-blue-900 text-white p-4 rounded-xl font-bold">
-Save Ship Data
+<button
+class="w-full bg-blue-900 text-white p-4 rounded-2xl font-bold">
+
+Save Ship
+
 </button>
 
 </form>
@@ -324,35 +467,74 @@ Save Ship Data
 </div>
 
 <div class="lg:col-span-2 card">
+
 <div id="calendar"></div>
-</div>
 
 </div>
 
 </div>
 
-<div id="reportsSection" style="display:none;" class="px-6 py-6">
+</div>
+
+<!-- FORECAST -->
+
+<div id="forecastSection"
+style="display:none"
+class="p-6 fade">
 
 <div class="card">
 
-<h2 class="text-2xl font-bold mb-5">
-Ship Data Table
+<h2 class="text-2xl font-bold mb-6">
+Forecast Prediction
 </h2>
 
-<div class="flex flex-wrap gap-4 mb-6">
+<div id="forecastContent"
+class="grid lg:grid-cols-3 gap-6">
+</div>
 
-<input id="searchShip"
+</div>
+
+</div>
+
+<!-- REPORTS -->
+
+<div id="reportsSection"
+style="display:none"
+class="p-6 fade">
+
+<div id="printSection" class="card">
+
+<div class="flex flex-wrap gap-4 justify-between mb-6">
+
+<h2 class="text-2xl font-bold">
+Reports
+</h2>
+
+<div class="flex flex-wrap gap-3">
+
+<input
+id="searchShip"
 placeholder="Search Ship"
-class="border p-3 rounded-xl"/>
+class="border p-3 rounded-2xl"
+/>
 
-<select id="filterMonth"
-class="border p-3 rounded-xl">
-<option value="">All Months</option>
+<select
+id="filterMonth"
+class="border p-3 rounded-2xl">
+
+<option value="">
+All Months
+</option>
+
 </select>
 
-<input id="filterPort"
+<input
+id="filterPort"
 placeholder="Filter Port"
-class="border p-3 rounded-xl"/>
+class="border p-3 rounded-2xl"
+/>
+
+</div>
 
 </div>
 
@@ -363,17 +545,19 @@ class="border p-3 rounded-xl"/>
 <thead>
 
 <tr class="bg-slate-100">
+
 <th class="p-4">Ship</th>
 <th class="p-4">Arrival</th>
 <th class="p-4">Departure</th>
 <th class="p-4">Port</th>
 <th class="p-4">Status</th>
 <th class="p-4">Action</th>
+
 </tr>
 
 </thead>
 
-<tbody id="shipTable"></tbody>
+<tbody id="reportTable"></tbody>
 
 </table>
 
@@ -383,46 +567,64 @@ class="border p-3 rounded-xl"/>
 
 </div>
 
-<div id="forecastSection" style="display:none;" class="px-6 py-6">
+<!-- SETTINGS -->
+
+<div id="settingsSection"
+style="display:none"
+class="p-6 fade">
+
+<div class="grid lg:grid-cols-2 gap-6">
 
 <div class="card">
-
-<h2 class="text-2xl font-bold mb-6">
-Forecast Analysis
-</h2>
-
-<div id="forecastBox"></div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div id="passwordModal" class="modal">
-
-<div class="modal-box">
 
 <h2 class="text-2xl font-bold mb-5">
 Change Password
 </h2>
 
-<input type="password"
+<input
+type="password"
 id="newPassword"
 placeholder="New Password"
-class="w-full border p-4 rounded-xl mb-4"/>
+class="w-full border p-4 rounded-2xl mb-4"
+/>
 
-<button onclick="changePassword()"
-class="w-full bg-blue-900 text-white p-4 rounded-xl">
+<button
+onclick="changePassword()"
+class="bg-blue-900 text-white px-6 py-4 rounded-2xl">
+
 Save Password
+
 </button>
 
-<button onclick="closePasswordModal()"
-class="w-full mt-3 bg-slate-200 p-4 rounded-xl">
-Cancel
+</div>
+
+<div class="card">
+
+<h2 class="text-2xl font-bold mb-5">
+Danger Zone
+</h2>
+
+<button
+onclick="clearAllData()"
+class="bg-red-500 text-white px-6 py-4 rounded-2xl w-full mb-4">
+
+Clear All Ship Data
+
 </button>
+
+<button
+onclick="deleteAccount()"
+class="bg-black text-white px-6 py-4 rounded-2xl w-full">
+
+Delete Account
+
+</button>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
@@ -431,29 +633,30 @@ Cancel
 <script>
 
 let shipData =
-JSON.parse(localStorage.getItem('shipData') || "[]");
+JSON.parse(localStorage.getItem('shipData') || '[]');
 
-let editIndex = null;
+const monthNames = [
+'January','February','March','April',
+'May','June','July','August',
+'September','October','November','December'
+];
 
-const calendar =
-new FullCalendar.Calendar(
-document.getElementById('calendar'),
-{
-initialView:'dayGridMonth',
-height:700,
-events:[]
-}
+let chart;
+
+function saveData(){
+
+localStorage.setItem(
+'shipData',
+JSON.stringify(shipData)
 );
 
-calendar.render();
+}
 
-function showSection(id){
+function showSection(id,btn){
 
-document
-.querySelectorAll(
-'#dashboardSection,#calendarSection,#reportsSection,#forecastSection'
-)
-.forEach(section=>{
+document.querySelectorAll(
+'#dashboardSection,#calendarSection,#forecastSection,#reportsSection,#settingsSection'
+).forEach(section=>{
 
 section.style.display='none';
 
@@ -462,11 +665,16 @@ section.style.display='none';
 document.getElementById(id)
 .style.display='block';
 
+document.querySelectorAll('.menu-btn')
+.forEach(b=>b.classList.remove('menu-active'));
+
+btn.classList.add('menu-active');
+
 }
 
-function formatDate(dateStr){
+function formatDate(date){
 
-const d = new Date(dateStr);
+const d = new Date(date);
 
 const day =
 String(d.getDate()).padStart(2,'0');
@@ -481,45 +689,68 @@ return `${day}/${month}/${year}`;
 
 }
 
+const calendar =
+new FullCalendar.Calendar(
+document.getElementById('calendar'),
+{
+initialView:'dayGridMonth',
+height:700,
+events:[]
+}
+);
+
+calendar.render();
+
 document
 .getElementById('shipForm')
-.addEventListener('submit',async function(e){
+.addEventListener('submit',e=>{
 
 e.preventDefault();
 
 const ship = {
 
 name: shipName.value,
+
 arrival: arrivalDate.value,
+
 departure: departureDate.value,
+
 port: port.value,
-expected: shipStatus.value === 'expected'
+
+expected:
+shipStatus.value === 'expected'
 
 };
 
-if(editIndex !== null){
-
-shipData[editIndex] = ship;
-editIndex = null;
-
-}else{
-
 shipData.push(ship);
 
-}
+saveData();
 
-localStorage.setItem(
-'shipData',
-JSON.stringify(shipData)
-);
+sendToGoogleSheets(ship);
 
-renderDashboard();
+renderAll();
 
-this.reset();
+e.target.reset();
 
 });
 
-function renderDashboard(){
+function renderAll(){
+
+renderCalendar();
+
+renderKPI();
+
+renderChart();
+
+renderReports();
+
+renderForecast();
+
+populateMonthFilter();
+
+}
+
+function renderCalendar(){
 
 calendar.removeAllEvents();
 
@@ -542,20 +773,163 @@ ship.expected
 
 });
 
-renderTable();
-renderForecast();
-updateKPI();
-renderMonthlyChart();
-renderMonthlySummary();
-populateMonthFilter();
-checkWeeklyShips();
+}
+
+function renderKPI(){
+
+totalShips.innerText =
+shipData.length;
+
+const currentMonth =
+new Date().getMonth();
+
+const monthShips =
+shipData.filter(ship=>{
+
+return new Date(ship.arrival)
+.getMonth() === currentMonth;
+
+}).length;
+
+thisMonthShips.innerText =
+monthShips;
+
+const shipCount = {};
+const monthCount = {};
+
+shipData.forEach(ship=>{
+
+shipCount[ship.name] =
+(shipCount[ship.name] || 0) + 1;
+
+const month =
+monthNames[
+new Date(ship.arrival).getMonth()
+];
+
+monthCount[month] =
+(monthCount[month] || 0) + 1;
+
+});
+
+let topShipName='-';
+let topShipValue=0;
+
+for(let ship in shipCount){
+
+if(shipCount[ship] > topShipValue){
+
+topShipValue =
+shipCount[ship];
+
+topShipName = ship;
 
 }
 
-function renderTable(){
+}
+
+topShip.innerText =
+topShipName;
+
+let bestMonthName='-';
+let bestMonthValue=0;
+
+for(let month in monthCount){
+
+if(monthCount[month] > bestMonthValue){
+
+bestMonthValue =
+monthCount[month];
+
+bestMonthName =
+month;
+
+}
+
+}
+
+bestMonth.innerText =
+bestMonthName;
+
+}
+
+function renderChart(){
+
+const monthData = {};
+
+monthNames.forEach(month=>{
+
+monthData[month]=0;
+
+});
+
+shipData.forEach(ship=>{
+
+const month =
+monthNames[
+new Date(ship.arrival).getMonth()
+];
+
+monthData[month]++;
+
+});
+
+if(chart){
+
+chart.destroy();
+
+}
+
+chart =
+new Chart(
+document.getElementById('monthlyChart'),
+{
+type:'line',
+
+data:{
+labels:monthNames,
+
+datasets:[{
+label:'Ships',
+data:Object.values(monthData),
+tension:.4
+}]
+}
+
+}
+);
 
 const table =
-document.getElementById('shipTable');
+document.getElementById('monthlyTable');
+
+table.innerHTML='';
+
+monthNames.forEach(month=>{
+
+table.innerHTML += `
+
+<tr class="border-b">
+
+<td class="p-4 font-semibold">
+${month}
+</td>
+
+<td class="p-4">
+${monthData[month]}
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+function renderReports(){
+
+const table =
+document.getElementById('reportTable');
 
 table.innerHTML='';
 
@@ -570,88 +944,77 @@ filterMonth.value;
 
 shipData.forEach((ship,index)=>{
 
-const d =
-new Date(ship.arrival);
-
 const month =
-String(d.getMonth()+1);
+new Date(ship.arrival)
+.getMonth()+1;
 
-if(search && !ship.name.toLowerCase().includes(search)){
+if(
+search &&
+!ship.name.toLowerCase().includes(search)
+){
 return;
 }
 
-if(portFilter && !ship.port.toLowerCase().includes(portFilter)){
+if(
+portFilter &&
+!ship.port.toLowerCase().includes(portFilter)
+){
 return;
 }
 
-if(monthFilter && month !== monthFilter){
+if(
+monthFilter &&
+Number(monthFilter)!==month
+){
 return;
 }
 
 table.innerHTML += `
-<tr class="table-row border-b">
 
-<td class="p-4 font-semibold">${ship.name}</td>
+<tr class="border-b table-row">
 
-<td class="p-4">${formatDate(ship.arrival)}</td>
+<td class="p-4 font-semibold">
+${ship.name}
+</td>
 
-<td class="p-4">${formatDate(ship.departure)}</td>
+<td class="p-4">
+${formatDate(ship.arrival)}
+</td>
 
-<td class="p-4">${ship.port || '-'}</td>
+<td class="p-4">
+${formatDate(ship.departure)}
+</td>
+
+<td class="p-4">
+${ship.port || '-'}
+</td>
 
 <td class="p-4">
 
-${ship.expected
+${
+ship.expected
 ? '<span class="badge-expected">Expected</span>'
 : '<span class="badge-real">Actual</span>'
 }
 
 </td>
 
-<td class="p-4 flex gap-2">
-
-<button
-onclick="editShip(${index})"
-class="bg-blue-600 text-white px-3 py-2 rounded-lg">
-Edit
-</button>
+<td class="p-4">
 
 <button
 onclick="deleteShip(${index})"
-class="bg-red-500 text-white px-3 py-2 rounded-lg">
+class="bg-red-500 text-white px-3 py-2 rounded-xl">
+
 Delete
+
 </button>
 
 </td>
 
 </tr>
+
 `;
 
-});
-
-}
-
-function editShip(index){
-
-const ship = shipData[index];
-
-shipName.value = ship.name;
-arrivalDate.value = ship.arrival;
-departureDate.value = ship.departure;
-port.value = ship.port;
-
-shipStatus.value =
-ship.expected
-? 'expected'
-: 'real';
-
-editIndex = index;
-
-showSection('calendarSection');
-
-window.scrollTo({
-top:0,
-behavior:'smooth'
 });
 
 }
@@ -662,210 +1025,93 @@ if(confirm('Delete this ship?')){
 
 shipData.splice(index,1);
 
-localStorage.setItem(
-'shipData',
-JSON.stringify(shipData)
-);
+saveData();
 
-renderDashboard();
+renderAll();
 
 }
-
-}
-
-function updateKPI(){
-
-document.getElementById('totalShips')
-.innerText = shipData.length;
-
-}
-
-function renderMonthlyChart(){
-
-function renderMonthlySummary(){
-
-const table =
-document.getElementById(
-'monthlySummaryTable'
-);
-
-if(!table) return;
-
-table.innerHTML='';
-
-const monthCount = {};
-
-shipData.forEach(ship=>{
-
-const d =
-new Date(ship.arrival);
-
-const month =
-d.toLocaleString(
-'th-TH',
-{month:'long'}
-);
-
-monthCount[month] =
-(monthCount[month] || 0) + 1;
-
-});
-
-for(const month in monthCount){
-
-table.innerHTML += `
-
-<tr class="border-b">
-
-<td class="p-4 font-semibold">
-${month}
-</td>
-
-<td class="p-4">
-${monthCount[month]}
-</td>
-
-</tr>
-
-`;
-
-}
-
-}
-
-const monthCount = {};
-
-shipData.forEach(ship=>{
-
-const d =
-new Date(ship.arrival);
-
-const month =
-d.toLocaleString('en-US',{month:'short'});
-
-monthCount[month] =
-(monthCount[month] || 0) + 1;
-
-});
-
-if(window.monthChart){
-
-window.monthChart.destroy();
-
-}
-
-window.monthChart =
-new Chart(
-document.getElementById('monthlyChart'),
-{
-type:'line',
-
-data:{
-
-labels:Object.keys(monthCount),
-
-datasets:[{
-
-label:'Ships',
-
-data:Object.values(monthCount),
-
-tension:.4
-
-}]
-
-}
-
-}
-);
 
 }
 
 function renderForecast(){
 
 const box =
-document.getElementById('forecastBox');
+document.getElementById('forecastContent');
 
 box.innerHTML='';
 
-const grouped = {};
+const monthData = {};
 
-shipData.forEach(ship=>{
+monthNames.forEach(month=>{
 
-if(!grouped[ship.name]){
-
-grouped[ship.name]=[];
-
-}
-
-grouped[ship.name]
-.push(new Date(ship.arrival));
+monthData[month]=0;
 
 });
 
-for(const name in grouped){
+shipData.forEach(ship=>{
 
-const dates =
-grouped[name]
-.sort((a,b)=>a-b);
+const month =
+monthNames[
+new Date(ship.arrival).getMonth()
+];
 
-if(dates.length >= 2){
+monthData[month]++;
 
-let gaps=[];
+});
 
-for(let i=1;i<dates.length;i++){
+monthNames.forEach(month=>{
 
-gaps.push(
-(dates[i]-dates[i-1])
-/
-(1000*60*60*24)
-);
+const value =
+monthData[month];
 
-}
-
-const avgGap =
-gaps.reduce((a,b)=>a+b,0)
-/
-gaps.length;
-
-const nextDate =
-new Date(
-dates[dates.length-1]
-);
-
-nextDate.setDate(
-nextDate.getDate()
-+
-Math.round(avgGap)
-);
+const forecast =
+Math.round(value * 1.15);
 
 box.innerHTML += `
-<div class="bg-blue-50 border border-blue-200 p-5 rounded-2xl mb-4">
 
-<div class="flex justify-between">
+<div class="border rounded-3xl p-6">
 
-<div>
-<h3 class="font-bold text-lg">
-🚢 ${name}
+<h3 class="text-xl font-bold mb-3">
+${month}
 </h3>
 
-<p class="text-slate-600 mt-2">
-AI Forecasted Arrival
+<p class="text-slate-500 mb-2">
+Historical Ships
 </p>
-</div>
 
-<div class="text-right">
-<p class="mt-2 font-bold text-blue-700">
-${formatDate(nextDate)}
+<h2 class="text-4xl font-bold">
+${value}
+</h2>
+
+<p class="mt-5 text-slate-500">
+Forecast Next Period
 </p>
-</div>
+
+<h2 class="text-3xl font-bold text-blue-900">
+${forecast}
+</h2>
 
 </div>
 
-</div>
 `;
 
+});
+
 }
+
+function populateMonthFilter(){
+
+if(filterMonth.options.length > 1){
+return;
+}
+
+for(let i=1;i<=12;i++){
+
+filterMonth.innerHTML += `
+<option value="${i}">
+${monthNames[i-1]}
+</option>
+`;
 
 }
 
@@ -887,105 +1133,85 @@ ws,
 
 XLSX.writeFile(
 wb,
-"ship-report.xlsx"
+"ships-report.xlsx"
 );
 
 }
 
-function populateMonthFilter(){
+function printReports(){
 
-const select =
-document.getElementById('filterMonth');
-
-if(select.options.length > 1){
-return;
-}
-
-for(let i=1;i<=12;i++){
-
-select.innerHTML += `
-<option value="${i}">
-Month ${i}
-</option>
-`;
-
-}
-
-}
-
-function checkWeeklyShips(){
-
-const now = new Date();
-
-const nextWeek = new Date();
-
-nextWeek.setDate(
-nextWeek.getDate()+7
+showSection(
+'reportsSection',
+document.querySelectorAll('.menu-btn')[3]
 );
 
-const count =
-shipData.filter(ship=>{
-
-const d =
-new Date(ship.arrival);
-
-return d >= now && d <= nextWeek;
-
-}).length;
-
-if(count >= 5){
-
-const div =
-document.createElement('div');
-
-div.className='notify';
-
-div.innerHTML =
-`⚠️ มีเรือเข้า ${count} ลำในสัปดาห์นี้`;
-
-document.body.appendChild(div);
-
-setTimeout(()=>{
-div.remove();
-},6000);
-
-}
-
-}
-
-function openPasswordModal(){
-
-document.getElementById('passwordModal')
-.style.display='flex';
-
-}
-
-function closePasswordModal(){
-
-document.getElementById('passwordModal')
-.style.display='none';
+window.print();
 
 }
 
 function changePassword(){
 
-const password =
-document.getElementById('newPassword').value;
+const pass =
+newPassword.value;
 
-localStorage.setItem(
-'appPassword',
-password
-);
+if(!pass){
 
-alert('Password changed successfully');
-
-closePasswordModal();
+alert('Please enter password');
+return;
 
 }
 
-searchShip.addEventListener('input',renderTable);
-filterPort.addEventListener('input',renderTable);
-filterMonth.addEventListener('change',renderTable);
+localStorage.setItem(
+'appPassword',
+pass
+);
+
+alert('Password updated');
+
+newPassword.value='';
+
+}
+
+function clearAllData(){
+
+if(confirm('Clear all ship data?')){
+
+shipData=[];
+
+saveData();
+
+renderAll();
+
+}
+
+}
+
+function deleteAccount(){
+
+if(confirm('Delete account permanently?')){
+
+localStorage.clear();
+
+location.reload();
+
+}
+
+}
+
+searchShip.addEventListener(
+'input',
+renderReports
+);
+
+filterPort.addEventListener(
+'input',
+renderReports
+);
+
+filterMonth.addEventListener(
+'change',
+renderReports
+);
 
 async function sendToGoogleSheets(ship){
 
@@ -1002,14 +1228,12 @@ ship.name
 
 formData.append(
 "entry.1019847148",
-new Date(ship.arrival)
-.toLocaleDateString('en-US')
+ship.arrival
 );
 
 formData.append(
 "entry.1663534287",
-new Date(ship.departure)
-.toLocaleDateString('en-US')
+ship.departure
 );
 
 formData.append(
@@ -1017,15 +1241,22 @@ formData.append(
 ship.port
 );
 
+formData.append(
+"entry.1375606693",
+ship.expected
+? "Expected"
+: "Actual"
+);
+
 fetch(FORM_URL,{
 method:"POST",
 mode:"no-cors",
-body: formData
+body:formData
 });
 
 }
 
-renderDashboard();
+renderAll();
 
 </script>
 
