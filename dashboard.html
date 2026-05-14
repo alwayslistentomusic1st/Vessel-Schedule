@@ -1,119 +1,4 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Corporate Ship Logistics Dashboard</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
-<style>
-
-body{
-background:#f1f5f9;
-font-family:sans-serif;
-}
-
-.sidebar{
-background:#0f172a;
-color:white;
-min-height:100vh;
-}
-
-.card{
-background:white;
-border-radius:20px;
-padding:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.05);
-}
-
-.kpi{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.kpi h2{
-font-size:32px;
-font-weight:700;
-color:#0f172a;
-}
-
-.badge-real{
-background:#dcfce7;
-color:#166534;
-padding:6px 12px;
-border-radius:999px;
-font-size:12px;
-font-weight:700;
-}
-
-.badge-forecast{
-background:#fef3c7;
-color:#92400e;
-padding:6px 12px;
-border-radius:999px;
-font-size:12px;
-font-weight:700;
-}
-
-.table-row:hover{
-background:#f8fafc;
-cursor:pointer;
-}
-
-.notify{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#0f172a;
-color:white;
-padding:16px 20px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,.2);
-z-index:999;
-animation:fadeIn .4s ease;
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-.fc-event{
-border:none !important;
-padding:3px;
-font-size:12px;
-font-weight:600;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="grid lg:grid-cols-[260px_1fr]">
-
-<!-- SIDEBAR -->
+<!-- ========================= SIDEBAR ========================= -->
 
 <div class="sidebar p-6">
 
@@ -122,51 +7,69 @@ font-weight:600;
 </h1>
 
 <p class="text-slate-400 mb-10">
-Corporate Logistics Dashboard
+Corporate Ship Management System
 </p>
 
 <div class="space-y-4">
 
-<div class="bg-slate-800 p-4 rounded-xl">
+<button
+onclick="showSection('dashboardSection')"
+class="w-full text-left bg-slate-800 p-4 rounded-xl">
+
 <i class="fa-solid fa-chart-line mr-2"></i>
 Dashboard
-</div>
 
-<div class="p-4 rounded-xl hover:bg-slate-800 transition">
+</button>
+
+<button
+onclick="showSection('calendarSection')"
+class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+
 <i class="fa-solid fa-calendar mr-2"></i>
 Calendar
-</div>
 
-<div class="p-4 rounded-xl hover:bg-slate-800 transition">
+</button>
+
+<button
+onclick="showSection('tableSection')"
+class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+
 <i class="fa-solid fa-table mr-2"></i>
 Reports
-</div>
 
-<div class="p-4 rounded-xl hover:bg-slate-800 transition">
+</button>
+
+<button
+onclick="showSection('forecastSection')"
+class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+
 <i class="fa-solid fa-ship mr-2"></i>
 Forecast
-</div>
+
+</button>
 
 </div>
 
 </div>
 
-<!-- MAIN -->
+<!-- ========================= MAIN ========================= -->
 
 <div>
 
-<!-- TOPBAR -->
+<!-- ========================= TOPBAR ========================= -->
 
 <div class="bg-white p-6 shadow-sm flex justify-between items-center">
 
 <div>
+
 <h2 class="text-3xl font-bold text-slate-900">
-Ship Logistics Dashboard
+ระบบข้อมูลเรือเข้า-ออก
 </h2>
 
 <p class="text-slate-500">
-Real-time vessel tracking system
+Corporate Logistics Dashboard
 </p>
+
 </div>
 
 <div class="flex gap-3">
@@ -174,18 +77,26 @@ Real-time vessel tracking system
 <button
 onclick="exportExcel()"
 class="bg-green-600 text-white px-5 py-3 rounded-xl">
+
 Export Excel
+
 </button>
 
 <button
 onclick="window.print()"
 class="bg-slate-800 text-white px-5 py-3 rounded-xl">
+
 Print
+
 </button>
 
 </div>
 
 </div>
+
+<!-- ========================= DASHBOARD SECTION ========================= -->
+
+<div id="dashboardSection">
 
 <!-- KPI -->
 
@@ -194,6 +105,7 @@ Print
 <div class="card kpi">
 
 <div>
+
 <p class="text-slate-500">
 Total Ships
 </p>
@@ -201,6 +113,7 @@ Total Ships
 <h2 id="totalShips">
 0
 </h2>
+
 </div>
 
 <i class="fa-solid fa-ship text-4xl text-blue-900"></i>
@@ -210,6 +123,7 @@ Total Ships
 <div class="card kpi">
 
 <div>
+
 <p class="text-slate-500">
 This Month
 </p>
@@ -217,6 +131,7 @@ This Month
 <h2 id="monthShips">
 0
 </h2>
+
 </div>
 
 <i class="fa-solid fa-calendar text-4xl text-blue-900"></i>
@@ -226,6 +141,7 @@ This Month
 <div class="card kpi">
 
 <div>
+
 <p class="text-slate-500">
 Most Frequent Ship
 </p>
@@ -233,6 +149,7 @@ Most Frequent Ship
 <h2 id="topShip">
 -
 </h2>
+
 </div>
 
 <i class="fa-solid fa-star text-4xl text-blue-900"></i>
@@ -242,6 +159,7 @@ Most Frequent Ship
 <div class="card kpi">
 
 <div>
+
 <p class="text-slate-500">
 Most Busy Month
 </p>
@@ -249,6 +167,7 @@ Most Busy Month
 <h2 id="bestMonth">
 -
 </h2>
+
 </div>
 
 <i class="fa-solid fa-chart-line text-4xl text-blue-900"></i>
@@ -257,37 +176,25 @@ Most Busy Month
 
 </div>
 
-<!-- FILTER -->
+<!-- MONTHLY CHART -->
 
-<div class="flex flex-wrap gap-4 px-6 mb-6">
+<div class="card mx-6 mt-6">
 
-<input
-id="searchShip"
-placeholder="Search Ship"
-class="border p-3 rounded-xl bg-white"
-/>
+<h2 class="text-2xl font-bold text-slate-900 mb-6">
+Monthly Ship Summary
+</h2>
 
-<select
-id="filterMonth"
-class="border p-3 rounded-xl bg-white">
-
-<option value="">
-All Months
-</option>
-
-</select>
-
-<input
-id="filterPort"
-placeholder="Filter Port"
-class="border p-3 rounded-xl bg-white"
-/>
+<canvas id="monthlyChart"></canvas>
 
 </div>
 
-<!-- FORM + CALENDAR -->
+</div>
 
-<div class="grid lg:grid-cols-3 gap-6 px-6">
+<!-- ========================= CALENDAR SECTION ========================= -->
+
+<div id="calendarSection">
+
+<div class="grid lg:grid-cols-3 gap-6 px-6 mt-6">
 
 <!-- FORM -->
 
@@ -341,6 +248,7 @@ Forecast Arrival
 </select>
 
 <button
+type="submit"
 class="w-full bg-blue-900 text-white p-4 rounded-xl font-bold">
 
 Save Ship Data
@@ -361,27 +269,65 @@ Save Ship Data
 
 </div>
 
-<!-- CHART -->
+</div>
 
-<div class="card mx-6 mt-6">
+<!-- ========================= FORECAST SECTION ========================= -->
 
-<h2 class="text-2xl font-bold text-slate-900 mb-6">
-Monthly Ship Summary
+<div
+id="forecastSection"
+class="card mx-6 mt-6">
+
+<h2 class="text-2xl font-bold mb-5 text-slate-900">
+Forecast Analysis
 </h2>
 
-<canvas id="monthlyChart"></canvas>
+<div id="forecastBox"></div>
 
 </div>
 
-<!-- TABLE -->
+<!-- ========================= TABLE SECTION ========================= -->
 
-<div class="card mx-6 mt-6 overflow-auto">
+<div
+id="tableSection"
+class="card mx-6 mt-6 overflow-auto">
 
 <div class="flex justify-between items-center mb-5">
+
+<div>
 
 <h2 class="text-2xl font-bold text-slate-900">
 Ship Data Table
 </h2>
+
+<!-- FILTER -->
+
+<div class="flex flex-wrap gap-4 mt-5">
+
+<input
+id="searchShip"
+placeholder="Search Ship"
+class="border p-3 rounded-xl bg-white"
+/>
+
+<select
+id="filterMonth"
+class="border p-3 rounded-xl bg-white">
+
+<option value="">
+All Months
+</option>
+
+</select>
+
+<input
+id="filterPort"
+placeholder="Filter Port"
+class="border p-3 rounded-xl bg-white"
+/>
+
+</div>
+
+</div>
 
 </div>
 
@@ -415,39 +361,26 @@ Ship Data Table
 
 </div>
 
-</div>
+<!-- ========================= JAVASCRIPT ========================= -->
 
 <script>
 
-let shipData =
-JSON.parse(localStorage.getItem('shipData') || "[]");
+let editIndex = null;
 
-const calendar =
-new FullCalendar.Calendar(
-document.getElementById('calendar'),
-{
-initialView:'dayGridMonth',
-height:700,
-events:[]
-}
-);
+function showSection(id){
 
-calendar.render();
+document
+.querySelectorAll(
+'#dashboardSection,#calendarSection,#tableSection,#forecastSection'
+)
+.forEach(section=>{
 
-function formatDate(dateStr){
+section.style.display = 'none';
 
-const d = new Date(dateStr);
+});
 
-const day =
-String(d.getDate()).padStart(2,'0');
-
-const month =
-String(d.getMonth()+1).padStart(2,'0');
-
-const year =
-d.getFullYear();
-
-return `${day}/${month}/${year}`;
+document.getElementById(id)
+.style.display = 'block';
 
 }
 
@@ -476,7 +409,17 @@ shipStatus.value === 'forecast'
 
 };
 
+if(editIndex !== null){
+
+shipData[editIndex] = ship;
+
+editIndex = null;
+
+}else{
+
 shipData.push(ship);
+
+}
 
 localStorage.setItem(
 'shipData',
@@ -490,257 +433,6 @@ renderDashboard();
 this.reset();
 
 });
-
-function renderDashboard(){
-
-calendar.removeAllEvents();
-
-shipData.forEach(ship=>{
-
-calendar.addEvent({
-
-title:
-`🚢 ${ship.name}`,
-
-start:
-ship.arrival,
-
-end:
-ship.departure,
-
-backgroundColor:
-ship.forecast
-? '#facc15'
-: '#22c55e'
-
-});
-
-});
-
-renderTable();
-
-renderMonthlyChart();
-
-updateKPI();
-
-checkWeeklyShips();
-
-populateMonthFilter();
-
-}
-
-function updateKPI(){
-
-document.getElementById('totalShips')
-.innerText =
-shipData.length;
-
-const shipCount = {};
-
-const monthCount = {};
-
-const monthNames = [
-'Jan','Feb','Mar','Apr',
-'May','Jun','Jul','Aug',
-'Sep','Oct','Nov','Dec'
-];
-
-shipData.forEach(ship=>{
-
-shipCount[ship.name] =
-(shipCount[ship.name] || 0) + 1;
-
-const d =
-new Date(ship.arrival);
-
-const month =
-monthNames[d.getMonth()];
-
-monthCount[month] =
-(monthCount[month] || 0) + 1;
-
-});
-
-let topShip = '-';
-let topCount = 0;
-
-for(const ship in shipCount){
-
-if(shipCount[ship] > topCount){
-
-topCount =
-shipCount[ship];
-
-topShip =
-ship;
-
-}
-
-}
-
-document.getElementById('topShip')
-.innerText =
-topShip;
-
-let bestMonth = '-';
-let bestMonthCount = 0;
-
-for(const month in monthCount){
-
-if(monthCount[month] > bestMonthCount){
-
-bestMonthCount =
-monthCount[month];
-
-bestMonth =
-month;
-
-}
-
-}
-
-document.getElementById('bestMonth')
-.innerText =
-bestMonth;
-
-const currentMonth =
-new Date().getMonth();
-
-const currentMonthCount =
-shipData.filter(ship=>{
-
-const d =
-new Date(ship.arrival);
-
-return d.getMonth() === currentMonth;
-
-}).length;
-
-document.getElementById('monthShips')
-.innerText =
-currentMonthCount;
-
-}
-
-function renderTable(){
-
-const table =
-document.getElementById('shipTable');
-
-table.innerHTML = '';
-
-const search =
-searchShip.value.toLowerCase();
-
-const portFilter =
-filterPort.value.toLowerCase();
-
-const monthFilter =
-filterMonth.value;
-
-shipData.forEach((ship,index)=>{
-
-const d =
-new Date(ship.arrival);
-
-const month =
-String(d.getMonth()+1);
-
-if(
-search &&
-!ship.name.toLowerCase().includes(search)
-){
-return;
-}
-
-if(
-portFilter &&
-!ship.port.toLowerCase().includes(portFilter)
-){
-return;
-}
-
-if(
-monthFilter &&
-month !== monthFilter
-){
-return;
-}
-
-table.innerHTML += `
-
-<tr class="table-row border-b">
-
-<td class="p-4 font-semibold">
-${ship.name}
-</td>
-
-<td class="p-4">
-${formatDate(ship.arrival)}
-</td>
-
-<td class="p-4">
-${formatDate(ship.departure)}
-</td>
-
-<td class="p-4">
-${ship.port || '-'}
-</td>
-
-<td class="p-4">
-
-${
-ship.forecast
-? '<span class="badge-forecast">Forecast</span>'
-: '<span class="badge-real">Actual</span>'
-}
-
-</td>
-
-<td class="p-4 flex gap-2">
-
-<button
-onclick="editShip(${index})"
-class="bg-blue-600 text-white px-3 py-2 rounded-lg">
-
-Edit
-
-</button>
-
-<button
-onclick="deleteShip(${index})"
-class="bg-red-500 text-white px-3 py-2 rounded-lg">
-
-Delete
-
-</button>
-
-</td>
-
-</tr>
-
-`;
-
-});
-
-}
-
-function deleteShip(index){
-
-if(confirm('Delete this ship?')){
-
-shipData.splice(index,1);
-
-localStorage.setItem(
-'shipData',
-JSON.stringify(shipData)
-);
-
-renderDashboard();
-
-}
-
-}
 
 function editShip(index){
 
@@ -764,167 +456,131 @@ ship.forecast
 ? 'forecast'
 : 'real';
 
-deleteShip(index);
+editIndex = index;
+
+showSection('calendarSection');
+
+window.scrollTo({
+top:0,
+behavior:'smooth'
+});
 
 }
 
-function renderMonthlyChart(){
+function renderForecast(){
 
-const monthCount = {};
+const box =
+document.getElementById('forecastBox');
+
+box.innerHTML = '';
+
+const grouped = {};
 
 shipData.forEach(ship=>{
 
-const d =
-new Date(ship.arrival);
+if(!grouped[ship.name]){
 
-const month =
-d.toLocaleString(
-'en-US',
-{month:'short'}
-);
+grouped[ship.name] = [];
 
-monthCount[month] =
-(monthCount[month] || 0) + 1;
+}
+
+grouped[ship.name]
+.push(new Date(ship.arrival));
 
 });
 
-if(window.monthChart){
+for(const name in grouped){
 
-window.monthChart.destroy();
+const dates =
+grouped[name]
+.sort((a,b)=>a-b);
 
-}
+if(dates.length >= 2){
 
-window.monthChart =
-new Chart(
-document.getElementById('monthlyChart'),
-{
-type:'line',
+let gaps = [];
 
-data:{
+for(let i=1;i<dates.length;i++){
 
-labels:
-Object.keys(monthCount),
-
-datasets:[{
-
-label:'Ships',
-
-data:
-Object.values(monthCount),
-
-tension:.4
-
-}]
-
-}
-
-}
+gaps.push(
+(dates[i]-dates[i-1])
+/
+(1000*60*60*24)
 );
 
 }
 
-function populateMonthFilter(){
+const avgGap =
+gaps.reduce((a,b)=>a+b,0)
+/
+gaps.length;
 
-const select =
-document.getElementById('filterMonth');
+const nextDate =
+new Date(
+dates[dates.length-1]
+);
 
-if(select.options.length > 1){
-return;
-}
+nextDate.setDate(
+nextDate.getDate()
++
+Math.round(avgGap)
+);
 
-for(let i=1;i<=12;i++){
+box.innerHTML += `
 
-select.innerHTML += `
-<option value="${i}">
-Month ${i}
-</option>
+<div class="bg-yellow-100 border border-yellow-300 p-5 rounded-2xl mb-4">
+
+<div class="flex justify-between">
+
+<div>
+
+<h3 class="font-bold text-lg">
+🚢 ${name}
+</h3>
+
+<p class="text-slate-600 mt-2">
+Expected Next Arrival
+</p>
+
+</div>
+
+<div class="text-right">
+
+<span class="badge-forecast">
+Forecast
+</span>
+
+<p class="mt-2 font-bold text-yellow-700">
+
+${formatDate(nextDate)}
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
 `;
 
 }
 
 }
 
-function exportExcel(){
+}
 
-const ws =
-XLSX.utils.json_to_sheet(shipData);
+const oldRenderDashboard =
+renderDashboard;
 
-const wb =
-XLSX.utils.book_new();
+renderDashboard = function(){
 
-XLSX.utils.book_append_sheet(
-wb,
-ws,
-"Ships"
-);
+oldRenderDashboard();
 
-XLSX.writeFile(
-wb,
-"ship-report.xlsx"
-);
+renderForecast();
 
 }
 
-function checkWeeklyShips(){
-
-const now =
-new Date();
-
-const nextWeek =
-new Date();
-
-nextWeek.setDate(
-nextWeek.getDate()+7
-);
-
-const count =
-shipData.filter(ship=>{
-
-const d =
-new Date(ship.arrival);
-
-return d >= now && d <= nextWeek;
-
-}).length;
-
-if(count >= 5){
-
-const div =
-document.createElement('div');
-
-div.className =
-'notify';
-
-div.innerHTML =
-`⚠️ มีเรือเข้า ${count} ลำในสัปดาห์นี้`;
-
-document.body.appendChild(div);
-
-setTimeout(()=>{
-div.remove();
-},6000);
-
-}
-
-}
-
-searchShip
-.addEventListener(
-'input',
-renderTable
-);
-
-filterPort
-.addEventListener(
-'input',
-renderTable
-);
-
-filterMonth
-.addEventListener(
-'change',
-renderTable
-);
+showSection('dashboardSection');
 
 async function sendToGoogleSheets(ship){
 
@@ -964,9 +620,4 @@ body: formData
 
 }
 
-renderDashboard();
-
 </script>
-
-</body>
-</html>
