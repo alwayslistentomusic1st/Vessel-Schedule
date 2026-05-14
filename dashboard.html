@@ -973,9 +973,9 @@ tension:.4
 }
 );
 
+setTimeout(()=>{
 renderMonthlySummaryTable(monthCount);
-
-}
+},100);
 
 function renderMonthlySummaryTable(monthCount){
 
@@ -1177,8 +1177,10 @@ body: formData
 
 }
 
+window.onload = () => {
 renderDashboard();
-
+};
+  
 </script>
 
 </body>
