@@ -297,6 +297,31 @@ Monthly Ship Summary
 </h2>
 
 <canvas id="monthlyChart"></canvas>
+<div class="mt-10 overflow-auto">
+
+<table class="w-full text-sm">
+
+<thead>
+
+<tr class="bg-slate-100">
+
+<th class="p-4 text-left">
+Month
+</th>
+
+<th class="p-4 text-left">
+Total Ships
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="monthlySummaryTable"></tbody>
+
+</table>
+
+</div>
 
 </div>
 
@@ -623,7 +648,7 @@ shipData.forEach(ship=>{
 
 calendar.addEvent({
 
-title:`🚢 ${ship.name}`,
+title:`🚢 ${ship.name} (${formatDate(ship.arrival)})`,
 
 start:ship.arrival,
 
@@ -907,7 +932,7 @@ new Date(ship.arrival);
 const month =
 d.toLocaleString(
 'en-US',
-{month:'short'}
+{month:'long'}
 );
 
 monthCount[month] =
@@ -948,101 +973,36 @@ tension:.4
 }
 );
 
-}
-
-function renderForecast(){
-
-const box =
-document.getElementById('forecastBox');
-
-box.innerHTML='';
-
-const grouped = {};
-
-shipData.forEach(ship=>{
-
-if(!grouped[ship.name]){
-
-grouped[ship.name]=[];
+renderMonthlySummaryTable(monthCount);
 
 }
 
-grouped[ship.name]
-.push(new Date(ship.arrival));
+function renderMonthlySummaryTable(monthCount){
 
-});
-
-for(const name in grouped){
-
-const dates =
-grouped[name]
-.sort((a,b)=>a-b);
-
-if(dates.length >= 2){
-
-let gaps=[];
-
-for(let i=1;i<dates.length;i++){
-
-gaps.push(
-(dates[i]-dates[i-1])
-/
-(1000*60*60*24)
+const table =
+document.getElementById(
+'monthlySummaryTable'
 );
 
-}
+table.innerHTML='';
 
-const avgGap =
-gaps.reduce((a,b)=>a+b,0)
-/
-gaps.length;
+for(const month in monthCount){
 
-const nextDate =
-new Date(
-dates[dates.length-1]
-);
+table.innerHTML += `
 
-nextDate.setDate(
-nextDate.getDate()
-+
-Math.round(avgGap)
-);
+<tr class="border-b">
 
-box.innerHTML += `
+<td class="p-4 font-semibold">
+${month}
+</td>
 
-<div class="bg-blue-50 border border-blue-200 p-5 rounded-2xl mb-4">
+<td class="p-4">
+${monthCount[month]}
+</td>
 
-<div class="flex justify-between">
-
-<div>
-
-<h3 class="font-bold text-lg">
-🚢 ${name}
-</h3>
-
-<p class="text-slate-600 mt-2">
-AI Forecasted Arrival
-</p>
-
-</div>
-
-<div class="text-right">
-
-<p class="mt-2 font-bold text-blue-700">
-
-${formatDate(nextDate)}
-
-</p>
-
-</div>
-
-</div>
-
-</div>
+</tr>
 
 `;
-
-}
 
 }
 
