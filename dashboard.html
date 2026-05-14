@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบข้อมูลเรือเข้า-ออก</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<style>
+body{
+background:#f1f5f9;
+font-family:sans-serif;
+}
+
+.sidebar{
+background:#0f172a;
+color:white;
+min-height:100vh;
+}
+
+.card{
+background:white;
+border-radius:22px;
+padding:22px;
+box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+
+.kpi{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.badge-real{
+background:#dcfce7;
+color:#166534;
+padding:6px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:700;
+}
+
+.badge-expected{
+background:#fef3c7;
+color:#92400e;
+padding:6px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:700;
+}
+
+.table-row:hover{
+background:#f8fafc;
+cursor:pointer;
+}
+
+.notify{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#0f172a;
+color:white;
+padding:16px 20px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+z-index:999;
+}
+
+.fc-event{
+border:none !important;
+padding:4px;
+font-size:12px;
+font-weight:700;
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.5);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
+}
+
+.modal-box{
+background:white;
+padding:30px;
+border-radius:22px;
+width:95%;
+max-width:420px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="grid lg:grid-cols-[260px_1fr]">
+
+<div class="sidebar p-6">
+
+<h1 class="text-3xl font-bold mb-2">
+🚢 ระบบข้อมูลเรือเข้า-ออก
+</h1>
+
+<p class="text-slate-400 mb-10">
+Corporate Ship Management System
+</p>
+
+<div class="space-y-4">
+
+<button onclick="showSection('dashboardSection')"
+class="w-full text-left bg-slate-800 p-4 rounded-xl">
+<i class="fa-solid fa-chart-line mr-2"></i>
+Dashboard
+</button>
+
+<button onclick="showSection('calendarSection')"
+class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+<i class="fa-solid fa-calendar mr-2"></i>
+Calendar
+</button>
+
+<button onclick="showSection('reportsSection')"
+class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+<i class="fa-solid fa-table mr-2"></i>
+Reports
+</button>
+
+<button onclick="showSection('forecastSection')"
+class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+<i class="fa-solid fa-ship mr-2"></i>
+Forecast
+</button>
+
+<button onclick="openPasswordModal()"
+class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+<i class="fa-solid fa-lock mr-2"></i>
+Settings
+</button>
+
+</div>
+
+</div>
+
+<div>
+
+<div class="bg-white p-6 shadow-sm flex justify-between items-center">
+
+<div>
+<h2 class="text-3xl font-bold text-slate-900">
+ระบบข้อมูลเรือเข้า-ออก
+</h2>
+
+<p class="text-slate-500">
+Corporate Logistics Dashboard
+</p>
+</div>
+
+<div class="flex gap-3">
+
+<button onclick="exportExcel()"
+class="bg-green-600 text-white px-5 py-3 rounded-xl">
+Export Excel
+</button>
+
+<button onclick="window.print()"
+class="bg-slate-800 text-white px-5 py-3 rounded-xl">
+Print
+</button>
+
+</div>
+
+</div>
+
+<div id="dashboardSection">
+
+<div class="grid lg:grid-cols-4 gap-6 p-6">
+
+<div class="card kpi">
+<div>
+<p class="text-slate-500">Total Ships</p>
+<h2 id="totalShips" class="text-4xl font-bold">0</h2>
+</div>
+<i class="fa-solid fa-ship text-4xl text-blue-900"></i>
+</div>
+
+<div class="card kpi">
+<div>
+<p class="text-slate-500">This Month</p>
+<h2 id="monthShips" class="text-4xl font-bold">0</h2>
+</div>
+<i class="fa-solid fa-calendar text-4xl text-blue-900"></i>
+</div>
+
+<div class="card kpi">
+<div>
+<p class="text-slate-500">Most Frequent Ship</p>
+<h2 id="topShip" class="text-2xl font-bold">-</h2>
+</div>
+<i class="fa-solid fa-star text-4xl text-blue-900"></i>
+</div>
+
+<div class="card kpi">
+<div>
+<p class="text-slate-500">Most Busy Month</p>
+<h2 id="bestMonth" class="text-2xl font-bold">-</h2>
+</div>
+<i class="fa-solid fa-chart-line text-4xl text-blue-900"></i>
+</div>
+
+</div>
+
+<div class="card mx-6 mb-6">
+<h2 class="text-2xl font-bold mb-6">
+Monthly Ship Summary
+</h2>
+<canvas id="monthlyChart"></canvas>
+</div>
+
+</div>
+
+<div id="calendarSection" style="display:none;" class="px-6 pb-6">
+
+<div class="grid lg:grid-cols-3 gap-6">
+
+<div class="card">
+
+<h2 class="text-2xl font-bold mb-5">
+Add Ship Schedule
+</h2>
+
+<form id="shipForm" class="space-y-4">
+
+<input required id="shipName"
+placeholder="Ship Name"
+class="w-full border p-4 rounded-xl"/>
+
+<input required type="date" id="arrivalDate"
+class="w-full border p-4 rounded-xl"/>
+
+<input required type="date" id="departureDate"
+class="w-full border p-4 rounded-xl"/>
+
+<input id="port"
+placeholder="Port"
+class="w-full border p-4 rounded-xl"/>
+
+<select id="shipStatus"
+class="w-full border p-4 rounded-xl">
+
+<option value="real">Actual Arrival</option>
+<option value="expected">Expected Arrival</option>
+
+</select>
+
+<button type="submit"
+class="w-full bg-blue-900 text-white p-4 rounded-xl font-bold">
+Save Ship Data
+</button>
+
+</form>
+
+</div>
+
+<div class="lg:col-span-2 card">
+<div id="calendar"></div>
+</div>
+
+</div>
+
+</div>
+
+<div id="reportsSection" style="display:none;" class="px-6 py-6">
+
+<div class="card">
+
+<h2 class="text-2xl font-bold mb-5">
+Ship Data Table
+</h2>
+
+<div class="flex flex-wrap gap-4 mb-6">
+
+<input id="searchShip"
+placeholder="Search Ship"
+class="border p-3 rounded-xl"/>
+
+<select id="filterMonth"
+class="border p-3 rounded-xl">
+<option value="">All Months</option>
+</select>
+
+<input id="filterPort"
+placeholder="Filter Port"
+class="border p-3 rounded-xl"/>
+
+</div>
+
+<div class="overflow-auto">
+
+<table class="w-full text-sm">
+
+<thead>
+
+<tr class="bg-slate-100">
+<th class="p-4">Ship</th>
+<th class="p-4">Arrival</th>
+<th class="p-4">Departure</th>
+<th class="p-4">Port</th>
+<th class="p-4">Status</th>
+<th class="p-4">Action</th>
+</tr>
+
+</thead>
+
+<tbody id="shipTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="forecastSection" style="display:none;" class="px-6 py-6">
+
+<div class="card">
+
+<h2 class="text-2xl font-bold mb-6">
+Forecast Analysis
+</h2>
+
+<div id="forecastBox"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="passwordModal" class="modal">
+
+<div class="modal-box">
+
+<h2 class="text-2xl font-bold mb-5">
+Change Password
+</h2>
+
+<input type="password"
+id="newPassword"
+placeholder="New Password"
+class="w-full border p-4 rounded-xl mb-4"/>
+
+<button onclick="changePassword()"
+class="w-full bg-blue-900 text-white p-4 rounded-xl">
+Save Password
+</button>
+
+<button onclick="closePasswordModal()"
+class="w-full mt-3 bg-slate-200 p-4 rounded-xl">
+Cancel
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+let shipData =
+JSON.parse(localStorage.getItem('shipData') || "[]");
+
+let editIndex = null;
+
+const calendar =
+new FullCalendar.Calendar(
+document.getElementById('calendar'),
+{
+initialView:'dayGridMonth',
+height:700,
+events:[]
+}
+);
+
+calendar.render();
+
+function showSection(id){
+
+document
+.querySelectorAll(
+'#dashboardSection,#calendarSection,#reportsSection,#forecastSection'
+)
+.forEach(section=>{
+
+section.style.display='none';
+
+});
+
+document.getElementById(id)
+.style.display='block';
+
+}
+
+function formatDate(dateStr){
+
+const d = new Date(dateStr);
+
+const day =
+String(d.getDate()).padStart(2,'0');
+
+const month =
+String(d.getMonth()+1).padStart(2,'0');
+
+const year =
+d.getFullYear();
+
+return `${day}/${month}/${year}`;
+
+}
+
+document
+.getElementById('shipForm')
+.addEventListener('submit',function(e){
+
+e.preventDefault();
+
+const ship = {
+
+name: shipName.value,
+arrival: arrivalDate.value,
+departure: departureDate.value,
+port: port.value,
+expected: shipStatus.value === 'expected'
+
+};
+
+if(editIndex !== null){
+
+shipData[editIndex] = ship;
+editIndex = null;
+
+}else{
+
+shipData.push(ship);
+
+}
+
+localStorage.setItem(
+'shipData',
+JSON.stringify(shipData)
+);
+
+renderDashboard();
+
+this.reset();
+
+});
+
+function renderDashboard(){
+
+calendar.removeAllEvents();
+
+shipData.forEach(ship=>{
+
+calendar.addEvent({
+
+title:`🚢 ${ship.name}`,
+
+start:ship.arrival,
+
+end:ship.departure,
+
+backgroundColor:
+ship.expected
+? '#facc15'
+: '#22c55e'
+
+});
+
+});
+
+renderTable();
+renderForecast();
+updateKPI();
+renderMonthlyChart();
+populateMonthFilter();
+checkWeeklyShips();
+
+}
+
+function renderTable(){
+
+const table =
+document.getElementById('shipTable');
+
+table.innerHTML='';
+
+const search =
+searchShip.value.toLowerCase();
+
+const portFilter =
+filterPort.value.toLowerCase();
+
+const monthFilter =
+filterMonth.value;
+
+shipData.forEach((ship,index)=>{
+
+const d =
+new Date(ship.arrival);
+
+const month =
+String(d.getMonth()+1);
+
+if(search && !ship.name.toLowerCase().includes(search)){
+return;
+}
+
+if(portFilter && !ship.port.toLowerCase().includes(portFilter)){
+return;
+}
+
+if(monthFilter && month !== monthFilter){
+return;
+}
+
+table.innerHTML += `
+<tr class="table-row border-b">
+
+<td class="p-4 font-semibold">${ship.name}</td>
+
+<td class="p-4">${formatDate(ship.arrival)}</td>
+
+<td class="p-4">${formatDate(ship.departure)}</td>
+
+<td class="p-4">${ship.port || '-'}</td>
+
+<td class="p-4">
+
+${ship.expected
+? '<span class="badge-expected">Expected</span>'
+: '<span class="badge-real">Actual</span>'
+}
+
+</td>
+
+<td class="p-4 flex gap-2">
+
+<button
+onclick="editShip(${index})"
+class="bg-blue-600 text-white px-3 py-2 rounded-lg">
+Edit
+</button>
+
+<button
+onclick="deleteShip(${index})"
+class="bg-red-500 text-white px-3 py-2 rounded-lg">
+Delete
+</button>
+
+</td>
+
+</tr>
+`;
+
+});
+
+}
+
+function editShip(index){
+
+const ship = shipData[index];
+
+shipName.value = ship.name;
+arrivalDate.value = ship.arrival;
+departureDate.value = ship.departure;
+port.value = ship.port;
+
+shipStatus.value =
+ship.expected
+? 'expected'
+: 'real';
+
+editIndex = index;
+
+showSection('calendarSection');
+
+window.scrollTo({
+top:0,
+behavior:'smooth'
+});
+
+}
+
+function deleteShip(index){
+
+if(confirm('Delete this ship?')){
+
+shipData.splice(index,1);
+
+localStorage.setItem(
+'shipData',
+JSON.stringify(shipData)
+);
+
+renderDashboard();
+
+}
+
+}
+
+function updateKPI(){
+
+document.getElementById('totalShips')
+.innerText = shipData.length;
+
+}
+
+function renderMonthlyChart(){
+
+const monthCount = {};
+
+shipData.forEach(ship=>{
+
+const d =
+new Date(ship.arrival);
+
+const month =
+d.toLocaleString('en-US',{month:'short'});
+
+monthCount[month] =
+(monthCount[month] || 0) + 1;
+
+});
+
+if(window.monthChart){
+
+window.monthChart.destroy();
+
+}
+
+window.monthChart =
+new Chart(
+document.getElementById('monthlyChart'),
+{
+type:'line',
+
+data:{
+
+labels:Object.keys(monthCount),
+
+datasets:[{
+
+label:'Ships',
+
+data:Object.values(monthCount),
+
+tension:.4
+
+}]
+
+}
+
+}
+);
+
+}
+
+function renderForecast(){
+
+const box =
+document.getElementById('forecastBox');
+
+box.innerHTML='';
+
+const grouped = {};
+
+shipData.forEach(ship=>{
+
+if(!grouped[ship.name]){
+
+grouped[ship.name]=[];
+
+}
+
+grouped[ship.name]
+.push(new Date(ship.arrival));
+
+});
+
+for(const name in grouped){
+
+const dates =
+grouped[name]
+.sort((a,b)=>a-b);
+
+if(dates.length >= 2){
+
+let gaps=[];
+
+for(let i=1;i<dates.length;i++){
+
+gaps.push(
+(dates[i]-dates[i-1])
+/
+(1000*60*60*24)
+);
+
+}
+
+const avgGap =
+gaps.reduce((a,b)=>a+b,0)
+/
+gaps.length;
+
+const nextDate =
+new Date(
+dates[dates.length-1]
+);
+
+nextDate.setDate(
+nextDate.getDate()
++
+Math.round(avgGap)
+);
+
+box.innerHTML += `
+<div class="bg-blue-50 border border-blue-200 p-5 rounded-2xl mb-4">
+
+<div class="flex justify-between">
+
+<div>
+<h3 class="font-bold text-lg">
+🚢 ${name}
+</h3>
+
+<p class="text-slate-600 mt-2">
+AI Forecasted Arrival
+</p>
+</div>
+
+<div class="text-right">
+<p class="mt-2 font-bold text-blue-700">
+${formatDate(nextDate)}
+</p>
+</div>
+
+</div>
+
+</div>
+`;
+
+}
+
+}
+
+}
+
+function exportExcel(){
+
+const ws =
+XLSX.utils.json_to_sheet(shipData);
+
+const wb =
+XLSX.utils.book_new();
+
+XLSX.utils.book_append_sheet(
+wb,
+ws,
+"Ships"
+);
+
+XLSX.writeFile(
+wb,
+"ship-report.xlsx"
+);
+
+}
+
+function populateMonthFilter(){
+
+const select =
+document.getElementById('filterMonth');
+
+if(select.options.length > 1){
+return;
+}
+
+for(let i=1;i<=12;i++){
+
+select.innerHTML += `
+<option value="${i}">
+Month ${i}
+</option>
+`;
+
+}
+
+}
+
+function checkWeeklyShips(){
+
+const now = new Date();
+
+const nextWeek = new Date();
+
+nextWeek.setDate(
+nextWeek.getDate()+7
+);
+
+const count =
+shipData.filter(ship=>{
+
+const d =
+new Date(ship.arrival);
+
+return d >= now && d <= nextWeek;
+
+}).length;
+
+if(count >= 5){
+
+const div =
+document.createElement('div');
+
+div.className='notify';
+
+div.innerHTML =
+`⚠️ มีเรือเข้า ${count} ลำในสัปดาห์นี้`;
+
+document.body.appendChild(div);
+
+setTimeout(()=>{
+div.remove();
+},6000);
+
+}
+
+}
+
+function openPasswordModal(){
+
+document.getElementById('passwordModal')
+.style.display='flex';
+
+}
+
+function closePasswordModal(){
+
+document.getElementById('passwordModal')
+.style.display='none';
+
+}
+
+function changePassword(){
+
+const password =
+document.getElementById('newPassword').value;
+
+localStorage.setItem(
+'appPassword',
+password
+);
+
+alert('Password changed successfully');
+
+closePasswordModal();
+
+}
+
+searchShip.addEventListener('input',renderTable);
+filterPort.addEventListener('input',renderTable);
+filterMonth.addEventListener('change',renderTable);
+
+/*
+GOOGLE FORM INTEGRATION
+
+ใส่ FORM_URL และ entry IDs
+*/
+
+async function sendToGoogleSheets(ship){
+
+const FORM_URL =
+"https://docs.google.com/forms/d/e/FORM_ID/formResponse";
+
+const formData =
+new FormData();
+
+formData.append(
+"entry.xxxxx",
+ship.name
+);
+
+formData.append(
+"entry.xxxxx",
+new Date(ship.arrival)
+.toLocaleDateString('en-US')
+);
+
+formData.append(
+"entry.xxxxx",
+new Date(ship.departure)
+.toLocaleDateString('en-US')
+);
+
+formData.append(
+"entry.xxxxx",
+ship.port
+);
+
+fetch(FORM_URL,{
+method:"POST",
+mode:"no-cors",
+body: formData
+});
+
+}
+
+renderDashboard();
+
+</script>
+
+</body>
+</html>
